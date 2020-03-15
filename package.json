@@ -1,7 +1,7 @@
 {
-  "name": "verify-emails",
+  "name": "covid-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Service API to facilitate WP CF7 -> Crello -> Zelos workflow",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -14,7 +14,6 @@
     "axios": "^0.19.2",
     "express": "^4.17.1",
     "express-validator": "^6.4.0",
-    "google-spreadsheet": "^3.0.9",
     "googleapis": "^47.0.0",
     "sanitize": "^2.1.0"
   }
