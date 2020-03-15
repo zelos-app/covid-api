@@ -11,11 +11,9 @@ printRequest = (req) => {
   console.log("Body:\n" + util.inspect(req.body));
 }
 
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+//app.use(bodyParser.urlencoded({ extended: false }))
 
-// parse application/json
-app.use(bodyParser.json())
+//app.use(bodyParser.json())
 
 app.get('/', (req, res) => {
   res.send("Yes hello");
