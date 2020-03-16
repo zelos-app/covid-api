@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
 const util = require('util');
 const Zelos = require('./models/Zelos');
 const Trello = require('./models/Trello');
@@ -11,28 +10,31 @@ printRequest = (req) => {
   console.log("Body:\n" + util.inspect(req.body));
 }
 
-//app.use(bodyParser.urlencoded({ extended: false }))
-
-//app.use(bodyParser.json())
+// Default route
 
 app.get('/', (req, res) => {
   res.send("Yes hello");
 });
 
 
+// Trello webhook validation
+
 app.head('/trello', (req, res) => {
   res.send("Yes Hello");
-    printRequest(req);
+  printRequest(req);
 });
+
+
+// Get status updates from Trello and create tasks from Zelos
 
 app.post('/trello', async (req, res) => {
   res.send("Yes Hello");
   let approved = false;
 
   if (req.body.action.display.translationKey === "action_move_card_from_list_to_list") {
-    (req.body.action.data.listAfter.name === "Approved") ? approved = true : approved = false
+    (req.body.action.data.listAfter.name === "Approved") ? approved = true: approved = false
   }
-  
+
   if (approved) {
     trello = new Trello(req.body)
     const cardId = trello.data.action.data.card.id;
@@ -49,8 +51,10 @@ app.post('/trello', async (req, res) => {
     groupId = await workspace.getGroups(taskData.location);
     await workspace.newTask(taskData, [groupId]);
   }
-  
+
 });
+
+// Get data from CF7 Webhook
 
 app.post('/requestform', async (req, res) => {
   res.send("Yes Hello");
@@ -74,7 +78,8 @@ function parseCustomFields(fields) {
   return taskData
 }
 
-
-function getKeyByValue(object, value) { 
-  return Object.keys(object).find(key => object[key] === value); 
+function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
 }
+
+exports.covid_api = app;

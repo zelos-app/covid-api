@@ -1,3 +1,4 @@
 node_modules
-auth/*-account.json
+**/config/*
+!**/config/*example*
 *.log
