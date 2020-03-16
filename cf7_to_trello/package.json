@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "daemon": "PORT=9000 pm2 start index.js -e ./error.log -o ./output.log",
-    "live": "nodemon index.js"
+    "daemon": "pm2 start index.js -e ./error.log -o ./output.log",
+    "live": "PORT=8999 nodemon index.js"
   },
   "author": "Viktor Lillemäe",
   "license": "ISC",

@@ -1,79 +1,70 @@
 const axios = require('axios');
 
-const config = require("../config/trello.json");
+const env = (process.env.GCP_PROJECT) ? "" : ".dev"
+const config = require(`../config/trello${env}.json`);
 
 class Trello {
     constructor() {
-        this.board = config.boardId;
+        this.board = config.board;
         this.lists = {};
         this.cfields = {};
         this.authParams = `?key=${config.key}&token=${config.token}`;
-        this.fieldIds = {
-            "name": "5e6d29241b49b216d9a914d5",
-            "phone": "5e6d291c1f7083515d255211",
-            "location": "5e6d292f2ba2395224ed747b",
-            "address": "5e6d2984cb1009845bf440f8"
-        }
     }
     async init() {
-        const listArr = await axios.get(`https://api.trello.com/1/boards/${this.board}/lists${this.authParams}`);
-        const cfieldArr = await axios.get(`https://api.trello.com/1/boards/${this.board}/customFields${this.authParams}`);
-        listArr.forEach(obj => {
+        await this.initLists();
+        await this.initFields();
+    }
+
+    async initLists() {
+        const res = await axios.get(`https://api.trello.com/1/boards/${this.board}/lists${this.authParams}`);
+        res.data.forEach(obj => {
             this.lists[obj.name.toLowerCase()] = obj.id;
         });
-        cfieldArr.forEach(obj => {
-            this.cfields[obj.name.toLowerCase()] = obj.id;
+    }
+
+    async initFields() {
+        const res = await axios.get(`https://api.trello.com/1/boards/${this.board}/customFields${this.authParams}`);
+        res.data.forEach(obj => {
+            this.cfields[obj.name.toLowerCase().replace(/\s.*/, '')] = obj.id;
         });
     }
 
-    async getCard(id) {
-        console.log(`Getting card ${id}...`)
-        const res = await axios.get(`https://api.trello.com/1/cards/${id}${this.authParams}`)
-        //console.log(res.data)
-    }
-    async getCustomFields(id) {
-        const res = await axios.get(`https://api.trello.com/1/cards/${id}/customFieldItems${this.authParams}`);
-        return res.data;
-    }
-
-    async getDesc(id) {
-        const res = await axios.get(`https://api.trello.com/1/cards/${id}/desc${this.authParams}`);
-        return res.data._value;
-    }
-
-    async newCard(request, idList = "5e6ce605f677832cd1cd551c") {
+    async newCard(formFields, list = this.lists.incoming) {
         let query = []
-        query.push(`name=${request.request.substring(0,57)}...`);
-        query.push(`desc=${request.request}`);
+        console.log(formFields);
+        query.push(`name=${formFields.request.substring(0,57)}...`);
+        query.push(`desc=${formFields.request}`);
         query.push(`pos=bottom`);
-        query.push(`idList=${idList}`);
+        query.push(`idList=${list}`);
         query = query.join('&');
 
         const req = encodeURI(`https://api.trello.com/1/cards${this.authParams}&${query}`);
-        const res = await axios.post(req);
-        this.addFields(res.data.id, request);
+        try {
+            const res = await axios.post(req);
+            this.addFields(res.data.id, formFields);
+        } catch (err) {
+            return err;
+        }
     }
-    async addFields(cardId, fields) {
-        delete fields.request;
+
+    async addFields(card, formFields) {
+        delete formFields.request;
         const requests = [];
-        Object.keys(fields).forEach(item => {
-            const fieldId = this.fieldIds[item];
+        Object.keys(formFields).forEach(item => {
+            const field = this.cfields[item];
             const value = {
                 "value": {
-                    "text": fields[item]
+                    "text": formFields[item]
                 },
                 "key": config.key,
                 "token": config.token
             }
-            requests.push([`https://api.trello.com/1/card/${cardId}/customField/${fieldId}/item`, value])
+            requests.push([`https://api.trello.com/1/card/${card}/customField/${field}/item`, value])
         })
-        //console.log(requests);
         requests.forEach(async req => {
-            //console.log(req)
             const res = await axios.put(req[0], req[1]);
-            //console.log(res.data);
         })
-        
+
     }
 }
 
