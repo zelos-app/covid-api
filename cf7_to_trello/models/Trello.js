@@ -31,9 +31,13 @@ class Trello {
 
     async newCard(formFields, list = this.lists.incoming) {
         let query = []
-        console.log(formFields);
-        query.push(`name=${formFields.request.substring(0,57)}...`);
-        query.push(`desc=${formFields.request}`);
+        let request = formFields.request;
+        if (request.length > 160){
+            query.push(`name=${request.substring(0,157)}...`);
+        } else {
+            query.push(`name=${request}`);
+        }
+        query.push(`desc=${request}`);
         query.push(`pos=bottom`);
         query.push(`idList=${list}`);
         query = query.join('&');
