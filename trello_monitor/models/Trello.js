@@ -7,41 +7,55 @@ class Trello {
     constructor(board = config.board) {
         this.board = board;
         this.lists = {};
-        //this.cfields = {};
+        this.customFields = {};
         this.authParams = `?key=${config.key}&token=${config.token}`;
     }
     async init() {
-        await this.initLists();
-        //await this.initFields();
-    }
-
-    async initLists() {
-        const res = await axios.get(`https://api.trello.com/1/boards/${this.board}/lists${this.authParams}`);
-        res.data.forEach(obj => {
+        const lists = await axios.get(`https://api.trello.com/1/boards/${this.board}/lists${this.authParams}`);
+        lists.data.forEach(obj => {
             this.lists[obj.name.toLowerCase()] = obj.id;
         });
-    }
-
-    async initFields() {
-        const res = await axios.get(`https://api.trello.com/1/boards/${this.board}/customFields${this.authParams}`);
-        res.data.forEach(obj => {
-            this.cfields[obj.name.toLowerCase().replace(/\s.*/, '')] = obj.id;
+        const fields = await axios.get(`https://api.trello.com/1/boards/${this.board}/customFields${this.authParams}`);
+        fields.data.forEach(obj => {
+            this.customFields[obj.name.toLowerCase().replace(/\s.*/, '')] = obj.id;
         });
     }
 
-    async getCard(id) {
-        console.log(`Getting card ${id}...`)
-        const res = await axios.get(`https://api.trello.com/1/cards/${id}${this.authParams}`)
-        //console.log(res.data)
+    async getCustomFields(card) {
+        try {
+            const res = await axios.get(`https://api.trello.com/1/cards/${card}/customFieldItems${this.authParams}`);
+            return res.data;
+        } catch (err) {
+            console.error(`[!] Error getting custom fields: ${err.message}`)
+        }
+    }
+
+    async getDesc(id) {
+        try {
+            const res = await axios.get(`https://api.trello.com/1/cards/${id}/desc${this.authParams}`);
+            console.log(res.data);
+            return res.data._value;
+        } catch (err) {
+            console.error(`[!] Error getting card description: ${err.message}`)
+        }
     }
 
     async addLabel(card, status, color) {
         try {
             const res = await axios.post(`https://api.trello.com/1/cards/${card}/labels${this.authParams}&color=${color}&name=${status}`);
         } catch (err) {
-            console.error(`Couldn't add label`);
+            console.error(`Couldn't add label: ${err.message}`);
         }
     }
+
+    async addComment(card, comment) {
+        try {
+            const res = await axios.post(`https://api.trello.com/1/cards/${card}/actions/comments${this.authParams}&text=${comment}`);
+        } catch (err) {
+            console.error(`[!] Failed to add the comment: ${err.message}`);
+        }
+    }
+
     async getLabels(card) {
         try {
             const res = await axios.get(`https://api.trello.com/1/cards/${card}${this.authParams}&fields=labels`);
@@ -49,48 +63,6 @@ class Trello {
         } catch (err) {
             console.error("Couldn't get labels");
         }
-    }
-
-    async newCard(formFields, list = this.lists.incoming) {
-        let query = []
-        let request = formFields.request;
-        if (request.length > 160) {
-            query.push(`name=${request.substring(0,157)}...`);
-        } else {
-            query.push(`name=${request}`);
-        }
-        query.push(`desc=${request}`);
-        query.push(`pos=bottom`);
-        query.push(`idList=${list}`);
-        query = query.join('&');
-
-        const req = encodeURI(`https://api.trello.com/1/cards${this.authParams}&${query}`);
-        try {
-            const res = await axios.post(req);
-            this.addFields(res.data.id, formFields);
-        } catch (err) {
-            return err;
-        }
-    }
-
-    async addFields(card, formFields) {
-        delete formFields.request;
-        const requests = [];
-        Object.keys(formFields).forEach(item => {
-            const field = this.cfields[item];
-            const value = {
-                "value": {
-                    "text": formFields[item]
-                },
-                "key": config.key,
-                "token": config.token
-            }
-            requests.push([`https://api.trello.com/1/card/${card}/customField/${field}/item`, value])
-        })
-        requests.forEach(async req => {
-            const res = await axios.put(req[0], req[1]);
-        })
-
     }
 }
 

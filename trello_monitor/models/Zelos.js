@@ -23,28 +23,45 @@ class Zelos {
         console.log(`[i] Found ${this.tasks.length} tasks`)
     }
     async getGroups(name = "") {
-        if (name === "") {
-            const res = await axios.get(`${this.url}/api/group`);
-            this.groups = res.data.data;
-            console.log(`[i] Loaded ${this.groups.length} groups`);
+        const res = await axios.get(`${this.url}/api/group`);
+        this.groups = res.data.data;
+        console.log(`[i] Loaded ${this.groups.length} groups`);
+    }
+
+    async findGroup(name) {
+        let url = `${this.url}/api/group?name=${name}`;
+        url = encodeURI(url);
+        const res = await axios.get(url);
+        if (res.data.data == "") {
+            return 0;
         } else {
-            let url = `${this.url}/api/group?name=${name}`;
-            url = encodeURI(url);
-            const res = await axios.get(url);
-            if (res.data.data == "") {
-                return 0;
-            } else {
-                const group = res.data.data
-                return group[0].data.id
-            }
+            const group = res.data.data
+            return group[0].data.id
         }
     }
+
     async newTask(details, groups = [0]) {
-        
+        let name = ""
+        const description = details.description
+        if (description.length > 255) {
+            name = `${description.substring(0,252)}...`
+        } else {
+            name = description
+        }
+        const instruction = []
+        Object.keys(details).forEach(item => {
+            if (item === "phone" || item === "address" || item === "name") {
+                instruction.push(`${item.capitalize()}: ${details[item]}`)
+            }
+        });
+
+        console.log(instruction.join("\n"))
+
         const body = {
             "type": "regular",
-            "name": `${details.description.substring(0,80)}...`,
-            "description": `${details.description}\n\n${details.name}\n${details.phone}\n${details.address}`,
+            "name": name,
+            "description": description,
+            "instructions": instruction.join('\n'),
             "execution_start_date": null,
             "execution_end_date": null,
             "points": 1,
@@ -58,15 +75,21 @@ class Zelos {
             "location_id": null,
             "user_ids": []
         }
-        const res = await axios.post(`${this.url}/api/task/regular`, body)
-        if (res.status === 200) {
+        try {
+            const res = await axios.post(`${this.url}/api/task/regular`, body)
             const taskUrl = this.url + "/tasks/" + res.data.data.id;
             console.log(`[i] Created ${taskUrl}`);
-        } else {
-            //throw "Failed to create a task"
+            return taskUrl;
+        } catch (err) {
+            console.error(`[!] Failed to create task: ${err.message}`)
+            return err;
         }
         
     }
+}
+
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
 function getKeyByValue(object, value) { 
