@@ -23,12 +23,12 @@ if (!process.env.GCP_PROJECT) {
 }
 
 // Verify endpoint for Trello
-app.head('/debug', (req, res) => {
+app.head(`/${endpoint}`, (req, res) => {
   console.log(util.inspect(req.body));
   res.send("Yes hello, this is API");
 });
 
-app.get('/debug', (req, res) => {
+app.get(`/${endpoint}`, (req, res) => {
   console.log(util.inspect(req.body));
   res.send("Yes hello");
 });
