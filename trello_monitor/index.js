@@ -100,7 +100,7 @@ app.post(`/${endpoint}`, async (req, res) => {
           }
         }
         // Mark the card
-        await trello.addLabel(action.card, status.new, "red")
+        await trello.addLabel(action.card, status.new, "red");
       }
     }
   }
@@ -123,7 +123,7 @@ function parseCustomFields(cardFields, boardFields) {
     const label = getKeyByValue(boardFields, obj.idCustomField);
     taskData[label] = value;
   });
-  return taskData
+  return taskData;
 }
 
 function getKeyByValue(object, value) { 
@@ -137,4 +137,4 @@ function printRequest(req) {
   console.log("Body:\n" + util.inspect(req.body));
 }
 
-exports.cf7_to_trello = app;
+exports.trello_monitor = app;
