@@ -33,7 +33,6 @@ class Trello {
     async getDesc(id) {
         try {
             const res = await axios.get(`https://api.trello.com/1/cards/${id}/desc${this.authParams}`);
-            console.log(res.data);
             return res.data._value;
         } catch (err) {
             console.error(`[!] Error getting card description: ${err.message}`)

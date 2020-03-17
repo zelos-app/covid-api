@@ -3,6 +3,11 @@ const app = express();
 const util = require('util');
 const Trello = require('./models/Trello');
 const Zelos = require('./models/Zelos');
+
+const sms = true; // assumes you have a texting service configured!
+const Infobip = require('./models/Infobip'); // you don't need this if you don't
+const messages = require('./config/messages'); // message templates
+
 let endpoint = ""
 
 // Check environment
@@ -22,14 +27,12 @@ if (!process.env.GCP_PROJECT) {
   });
 }
 
-// Verify endpoint for Trello
+// Verification endpoints for setting up Trello webhooks
 app.head(`/${endpoint}`, (req, res) => {
-  console.log(util.inspect(req.body));
   res.send("Yes hello, this is API");
 });
 
 app.get(`/${endpoint}`, (req, res) => {
-  console.log(util.inspect(req.body));
   res.send("Yes hello");
 });
 
@@ -46,16 +49,16 @@ app.post(`/${endpoint}`, async (req, res) => {
     action.board = req.body.action.data.board.id;
   }
   if (status.old === "incoming") {
+    await trello.init();
+    // Get card info
+    const labels = await trello.getLabels(action.card);
+    const cardFields = await trello.getCustomFields(action.card);
+    // Populate task data
+    const taskData = parseCustomFields(cardFields, trello.customFields);
+    taskData.description = await trello.getDesc(action.card);
+
     if (status.new === "approved") {
-      const labels = await trello.getLabels(action.card);
       if (!checkLabels(labels, status.new)) {
-        // Get card field data from Trello
-        await trello.init();
-        const cardFields = await trello.getCustomFields(action.card);
-        // Populate task data
-        const taskData = parseCustomFields(cardFields, trello.customFields);
-        taskData.description = await trello.getDesc(action.card);
-        console.log(taskData);
         // Create a task on Zelos
         const workspace = new Zelos();
         await workspace.init();
@@ -65,15 +68,37 @@ app.post(`/${endpoint}`, async (req, res) => {
           // Add a link to Zelos task
           trello.addComment(action.card, task);
           // Mark the card
-          trello.addLabel(action.card, status.new, "green")
+          await trello.addLabel(action.card, status.new, "green");
+          // Send a confirmation message
+          if (sms && !(taskData.phone == "")) {
+            const text = new Infobip();
+            try {
+              await text.sendMessage(taskData.phone, messages.approved);
+              await trello.addLabel(action.card, "SMS sent", "blue");
+            } catch (err) {
+            }
+          }
         }
       }
     }
-    if (status.new === "rejected") {
-      const labels = await trello.getLabels(action.card);
+    if (status.new === "rejected") {;
       if (!checkLabels(labels, status.new)) {
-        // TODO: Send a text
-
+        // Send a rejected text (maybe)
+        if (sms) {
+          // Find the phone number (in a retarded manner)
+          const cardFields = await trello.getCustomFields(action.card);
+          const taskData = parseCustomFields(cardFields, trello.customFields);
+          console.log(taskData);
+          if (!taskData.phone == "") {
+            console.log(`sending a text to ${taskData.phone}`)
+            const text = new Infobip();
+            try {
+              await text.sendMessage(taskData.phone, messages.rejected);
+              trello.addLabel(action.card, "SMS sent", "blue");
+            } catch (err) {
+            }
+          }
+        }
         // Mark the card
         await trello.addLabel(action.card, status.new, "red")
       }

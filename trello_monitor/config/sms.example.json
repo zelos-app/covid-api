@@ -1,8 +1,0 @@
-{
-    "providers": {
-        "<name>": {
-            "baseUrl": "",
-            "apiKey": ""
-        }
-    }
-}

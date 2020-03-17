@@ -33,14 +33,14 @@ class Zelos {
         url = encodeURI(url);
         const res = await axios.get(url);
         if (res.data.data == "") {
-            return 0;
+            return "";
         } else {
             const group = res.data.data
             return group[0].data.id
         }
     }
 
-    async newTask(details, groups = [0]) {
+    async newTask(details, groups = []) {
         let name = ""
         const description = details.description
         if (description.length > 255) {
@@ -54,14 +54,11 @@ class Zelos {
                 instruction.push(`${item.capitalize()}: ${details[item]}`)
             }
         });
-
-        console.log(instruction.join("\n"))
-
         const body = {
             "type": "regular",
-            "name": name,
-            "description": description,
-            "instructions": instruction.join('\n'),
+            "name": `${name}`,
+            "description": `${description}`,
+            "instructions": `${instruction.join('\n')}`,
             "execution_start_date": null,
             "execution_end_date": null,
             "points": 1,
