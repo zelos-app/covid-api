@@ -16,17 +16,26 @@ class Trello {
     }
 
     async initLists() {
-        const res = await axios.get(`https://api.trello.com/1/boards/${this.board}/lists${this.authParams}`);
-        res.data.forEach(obj => {
-            this.lists[obj.name.toLowerCase()] = obj.id;
-        });
+        try {
+            const res = await axios.get(`https://api.trello.com/1/boards/${this.board}/lists${this.authParams}`);
+            res.data.forEach(obj => {
+                this.lists[obj.name.toLowerCase()] = obj.id;
+            });
+        } catch (err) {
+            console.error(`[!] Couldn't get lists from Trello:\n${err.message}`);
+        }  
     }
 
     async initFields() {
-        const res = await axios.get(`https://api.trello.com/1/boards/${this.board}/customFields${this.authParams}`);
-        res.data.forEach(obj => {
-            this.cfields[obj.name.toLowerCase().replace(/\s.*/, '')] = obj.id;
-        });
+        try {
+            const res = await axios.get(`https://api.trello.com/1/boards/${this.board}/customFields${this.authParams}`);
+            res.data.forEach(obj => {
+                this.cfields[obj.name.toLowerCase().replace(/\s.*/, '')] = obj.id;
+            });
+        } catch (err) {
+            console.error(`[!] Couldn't get custom fields from Trello:\n${err.message}`);
+        }
+        
     }
 
     async newCard(formFields, list = this.lists.incoming) {
@@ -63,10 +72,14 @@ class Trello {
                 "key": config.key,
                 "token": config.token
             }
-            requests.push([`https://api.trello.com/1/card/${card}/customField/${field}/item`, value])
+            requests.push([`https://api.trello.com/1/card/${card}/customField/${field}/item`, value]);
         })
         requests.forEach(async req => {
-            const res = await axios.put(req[0], req[1]);
+            try {
+                const res = await axios.put(req[0], req[1]);
+            } catch (err) {
+                console.error(`[!] Failed to update custom fields on card ${card}\n${err.message}`);
+            }
         })
 
     }
