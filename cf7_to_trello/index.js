@@ -44,11 +44,11 @@ app.post('/', async (req, res) => {
 
 function sanitizePhoneNr(number) {
   // Remove spaces
-  number.replace(/\s/g, "")
+  number = number.replace(/(\.|\s)/g, "");
   if (number.match(/^\+*372\d{7,8}/)) {
     // (Probably) a valid Estonian phone number
     // Add + if it's not there already
-    number = number.replace(/^372/, "+372")
+    number = number.replace(/^372/, "+372");
     return number;
   } else if (number.match(/^\d{7,8}/)) {
     // Add prefix
