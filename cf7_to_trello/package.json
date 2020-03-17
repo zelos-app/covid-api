@@ -1,7 +1,7 @@
 {
   "name": "cf7-webhook",
   "version": "1.0.0",
-  "description": "",
+  "description": "Service API to facilitate WP CF7 -> Crello -> Zelos workflow",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
