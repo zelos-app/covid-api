@@ -25,8 +25,7 @@ app.get('/', (req, res) => {
 
 // Get data from CF7 Webhook
 app.post('/', async (req, res) => {
-  let submission = req.body;
-  submission.phone = sanitizePhoneNr(submission.phone);
+  req.body.phone = sanitizePhoneNr(req.body.phone);
   // create trello card
   const trello = new Trello();
   await trello.init();
