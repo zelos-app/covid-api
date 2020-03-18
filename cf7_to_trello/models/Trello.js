@@ -56,7 +56,7 @@ class Trello {
             const res = await axios.post(req);
             this.addFields(res.data.id, formFields);
         } catch (err) {
-            return err;
+            console.error(`[!] Failed to create a card: ${err.message}`)
         }
     }
 
