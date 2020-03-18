@@ -13,4 +13,8 @@
 
 ### Trello
 1. Update your trello credentials and board in `./config/trello.json`
-2. Create a webhook with board as target for this service on Trello. There is no web interface for doing this, use Postman to do it via their API. (NB! You need to run the service first so Trello can validate the endpoint)
+2. Make sure your Trello lists are called `Incoming`, `Rejected` and `Approved`, or change the hardcoded values in the code
+3. Create a webhook with board as target for this service on Trello. There is no web interface for doing this, use Postman to do it via their API. (NB! You need to run the service first so Trello can validate the endpoint)
+
+### Run the service
+Deploy the cloud function, or run it however you like, I'm not a cop. For Google Cloud: `gcloud functions deploy trello_monitor --runtime nodejs8 --trigger-http --region europe-west1`
