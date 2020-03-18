@@ -41,9 +41,9 @@ app.post('/', async (req, res) => {
 // Change phone number validation settings below! //
 ////////////////////////////////////////////////////
 
-function sanitizePhoneNr(number) {
+function sanitizePhoneNr(num) {
   // Remove spaces
-  number = number.replace(/(\.|\s)/g, "");
+  let number = num.replace(/\s*\.*\-*/g, "");
   if (number.match(/^\+*372\d{7,8}/)) {
     // (Probably) a valid Estonian phone number
     // Add + if it's not there already
@@ -56,6 +56,7 @@ function sanitizePhoneNr(number) {
   } else {
     // I guess this person isn't getting a message
     number = ""
+    return number;
   }
 }
 
