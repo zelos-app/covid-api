@@ -28,7 +28,7 @@ You can find and support our project at https://kogukondaitab.ee
 ![](https://i.imgur.com/gEIuFH8.png)
 
 ## Tasks in Zelos App
-<img src="https://i.imgur.com/w84W1XZ.png" width="300"> <img src="https://i.imgur.com/uV6vy3w.png" width="300">
+<img src="https://i.imgur.com/oiGJbVc.png" width="280"> <img src="https://i.imgur.com/uV6vy3w.png" width="280"> <img src="https://i.imgur.com/w84W1XZ.png" width="280">
 
 ## About the code
 
