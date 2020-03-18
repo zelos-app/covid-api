@@ -18,3 +18,7 @@
 
 ### Run the service
 Deploy the cloud function, or run it however you like, I'm not a cop. For Google Cloud: `gcloud functions deploy trello_monitor --runtime nodejs8 --trigger-http --region europe-west1`
+
+### Notes
+1. Name, Phone and Address fields are hidden from public in Zelos tasks by default. Once a volunteer is approved they will see the details
+2. Tasks are created with `"assignment_approve_needed": true` and `"completion_approve_needed": false,` flags by default, you can change this in Zelos.js model
