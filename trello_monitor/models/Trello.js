@@ -43,7 +43,7 @@ class Trello {
         try {
             const res = await axios.post(`https://api.trello.com/1/cards/${card}/labels${this.authParams}&color=${color}&name=${status}`);
         } catch (err) {
-            console.error(`Couldn't add label: ${err.message}`);
+            console.error(`[!] Couldn't add label: ${err.message}`);
         }
     }
 
@@ -60,7 +60,7 @@ class Trello {
             const res = await axios.get(`https://api.trello.com/1/cards/${card}${this.authParams}&fields=labels`);
             return res.data.labels
         } catch (err) {
-            console.error("Couldn't get labels");
+            console.error(`[!] Couldn't get labels: ${err.message}`);
         }
     }
 }
