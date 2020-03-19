@@ -25,7 +25,7 @@ You can find and support our project at https://kogukondaitab.ee
 ![](https://i.imgur.com/26x6tu3.png)
 
 ## Managing requests in Trello
-![](https://i.imgur.com/gEIuFH8.png)
+![](https://i.imgur.com/wiOr8ka.png)
 
 ## Tasks in Zelos App
 <img src="https://i.imgur.com/oiGJbVc.png" width="280"> <img src="https://i.imgur.com/uV6vy3w.png" width="280"> <img src="https://i.imgur.com/w84W1XZ.png" width="280">
