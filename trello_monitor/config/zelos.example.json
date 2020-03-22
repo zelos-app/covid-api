@@ -3,5 +3,6 @@
         "email": "",
         "password": ""
     },
-    "workspace": ""
+    "workspace": "workspace subdomain, without .zelos.space",
+    "insructions": "default instruction/warning text to be added to every task"
 }
