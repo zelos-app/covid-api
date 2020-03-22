@@ -63,25 +63,31 @@ app.post(`/${endpoint}`, async (req, res) => {
         const workspace = new Zelos();
         await workspace.init();
         const groupId = await workspace.findGroup(taskData.location);
-        const task = await workspace.newTask(taskData, [groupId]);
-        if (!(task instanceof Error)) {
-          // Add a link to Zelos task
-          trello.addComment(action.card, task);
-          // Mark the card
-          await trello.addLabel(action.card, status.new, "green");
-          // Send a confirmation message
-          if (sms && !(taskData.phone == "")) {
-            const text = new Infobip();
-            try {
-              await text.sendMessage(taskData.phone, messages.approved);
-              await trello.addLabel(action.card, "SMS sent", "blue");
-            } catch (err) {
+        if (groupId === "") {
+          // Don't create a task, mark the card
+          trello.addComment(action.card, `There is no "${taskData.location}" group on Zelos.\n\n1. Move the card back to incoming\n2. Fix the location field content\n3. Move to "accepted" again`);
+          trello.addLabel(action.card, "Bad Location", "orange");
+        } else {
+          // Create a task
+          const task = await workspace.newTask(taskData, [groupId]);
+          if (!(task instanceof Error)) {
+            // Add a link to Zelos task
+            trello.addComment(action.card, task);
+            // Mark the card
+            trello.addLabel(action.card, status.new, "green");
+            // Send a confirmation message
+            if (sms && !(taskData.phone == "")) {
+              const text = new Infobip();
+              try {
+                await text.sendMessage(taskData.phone, messages.approved);
+                await trello.addLabel(action.card, "SMS sent", "blue");
+              } catch (err) {}
             }
           }
         }
       }
     }
-    if (status.new === "rejected") {;
+    if (status.new === "rejected") {
       if (!checkLabels(labels, status.new)) {
         // Send a rejected text (maybe)
         if (sms) {
@@ -95,8 +101,7 @@ app.post(`/${endpoint}`, async (req, res) => {
             try {
               await text.sendMessage(taskData.phone, messages.rejected);
               trello.addLabel(action.card, "SMS sent", "blue");
-            } catch (err) {
-            }
+            } catch (err) {}
           }
         }
         // Mark the card
@@ -126,15 +131,8 @@ function parseCustomFields(cardFields, boardFields) {
   return taskData;
 }
 
-function getKeyByValue(object, value) { 
-  return Object.keys(object).find(key => object[key] === value); 
-}
-
-// debug functions
-function printRequest(req) {
-  console.log("Headers:\n" + util.inspect(req.headers));
-  console.log("Query:\n" + util.inspect(req.query));
-  console.log("Body:\n" + util.inspect(req.body));
+function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
 }
 
 exports.trello_monitor = app;

@@ -54,6 +54,8 @@ class Zelos {
                 instruction.push(`${item.capitalize()}: ${details[item]}`)
             }
         });
+        // add critical instructions
+        instruction.push(config.instructions);
         const body = {
             "type": "regular",
             "name": `${name}`,
