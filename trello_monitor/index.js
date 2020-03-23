@@ -63,9 +63,9 @@ app.post(`/${endpoint}`, async (req, res) => {
         const workspace = new Zelos();
         await workspace.init();
         const groupId = await workspace.findGroup(taskData.location);
-        if (groupId === "") {
+        if (groupId == "") {
           // Don't create a task, mark the card
-          trello.addComment(action.card, `There is no "${taskData.location}" group on Zelos.\n\n1. Move the card back to incoming\n2. Fix the location field content\n3. Move to "accepted" again`);
+          trello.addComment(action.card, `There is no "${taskData.location}" group on Zelos.\n\n1. Move the card back to incoming\n2. Fix the location field content\n3. Remove card labels\n4. Move to "accepted" again`);
           trello.addLabel(action.card, "Bad Location", "orange");
         } else {
           // Create a task
