@@ -6,6 +6,8 @@
 This was written during an online [Garage48 hackathon](http://garage48.org/events/hack-the-crisis) in Estonia.
 You can find and support our project at https://kogukondaitab.ee
 
+**NB! This project is deprecated and replaced by [Covid Request Portal](https://github.com/zelos-app/covid-request-portal) for [GlobalHack](https://theglobalhack.com/)**
+
 ## System components
 
 * [Wordpress](https://www.wordpress.com) site with [Contact Form 7](https://wordpress.org/plugins/contact-form-7/) for providing a request form for vulnerable people in need
